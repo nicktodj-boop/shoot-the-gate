@@ -230,11 +230,51 @@
   .panel .center{text-align:center;margin-top:18px}
   .muted{color:var(--gold-dim);font-size:13px;line-height:1.7}
   @media (max-width:560px){
-    .gate{gap:10px} .slot,.card{width:80px;height:114px} .pip{font-size:34px}
-    .face.front{padding:5px 6px}
-    .corner{width:18px;font-size:14px} .corner .s{font-size:12px}
-    .third-area{min-width:80px}
-    .title{font-size:24px} .stat .value{font-size:22px}
+    /* 頂部：標題收緊、副標與按鈕不換行 */
+    header{padding:14px 14px 2px;gap:8px}
+    .title{font-size:25px;letter-spacing:.2em;padding-left:.2em}
+    .title small{font-size:9px;letter-spacing:.3em;white-space:nowrap}
+    .top-tools{gap:6px}
+    .icon-btn{padding:8px 9px;font-size:12px;white-space:nowrap;border-radius:9px}
+
+    /* 計分列：標籤不換行、四格勻稱 */
+    .scorebar{gap:7px;padding:6px 12px 0}
+    .stat{padding:7px 4px;border-radius:11px;max-width:none}
+    .stat .label{font-size:10px;letter-spacing:.05em;white-space:nowrap}
+    .stat .value{font-size:20px}
+
+    /* 整塊內容垂直置中，收掉中間大留白 */
+    body{justify-content:center}
+    /* 牌桌：牌放大、留白收斂 */
+    .table{flex:0 1 auto;padding:18px 12px;gap:14px;min-height:0}
+    .gate{gap:14px}
+    .slot,.card{width:90px;height:128px}
+    .pip{font-size:40px}
+    .face.front{padding:6px 8px}
+    .corner{width:19px;font-size:15px} .corner .s{font-size:12px}
+    .third-area{min-width:90px}
+    .gate-label{font-size:12px;letter-spacing:.26em}
+    .banner{font-size:17px;text-align:center;justify-content:center}
+
+    /* 控制區：加大可點面積、貼近拇指 */
+    .controls{padding:10px 16px 22px;gap:13px}
+    .step{width:40px;height:40px;font-size:22px}
+    .chip{width:46px;height:46px;font-size:12px}
+    .bet-val{font-size:23px}
+    .btn{padding:13px 22px;font-size:16px}
+    .btn.big{padding:15px 32px;font-size:18px}
+
+    /* 手動模式托盤牌略縮，留間距 */
+    .tray-card{width:52px;height:74px}
+  }
+  /* 窄機（舊 SE 等）：牌與間距再收，避免貼邊 */
+  @media (max-width:360px){
+    .gate{gap:10px}
+    .slot,.card{width:84px;height:120px}
+    .third-area{min-width:84px}
+    .pip{font-size:37px}
+    .table{padding:16px 10px}
+    .stat .value{font-size:19px}
   }
 </style>
 </head>
