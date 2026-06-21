@@ -184,10 +184,14 @@
     width:34px;height:34px;border-radius:8px;border:1px solid var(--gold-dim);
     background:rgba(255,255,255,.04);color:var(--gold-2);font-size:20px;cursor:pointer;
     font-family:inherit;transition:.15s;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;
   }
   .step:hover{background:rgba(217,178,90,.18)}
-  .bet-val{font-family:var(--font-display);min-width:78px;text-align:center;font-size:24px;font-weight:700;color:var(--gold-2);
-    font-variant-numeric:tabular-nums lining-nums}
+  .bet-val{font-family:var(--font-display);width:96px;text-align:center;font-size:24px;font-weight:700;color:var(--gold-2);
+    font-variant-numeric:tabular-nums lining-nums;
+    background:transparent;border:none;outline:none;padding:3px 2px;border-radius:7px;cursor:text;-webkit-appearance:none;appearance:none}
+  .bet-val:focus{background:rgba(217,178,90,.15);box-shadow:inset 0 0 0 1px var(--gold-dim)}
+  .bet-val::selection{background:rgba(217,178,90,.35)}
   .chips{display:flex;gap:6px}
   .chip{
     border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;font-family:inherit;
@@ -322,7 +326,7 @@
       <div class="bet-box">
         <span class="lab">下注</span>
         <button class="step" id="betMinus">−</button>
-        <span class="bet-val" id="betView">0</span>
+        <input class="bet-val" id="betView" type="text" inputmode="numeric" value="0" maxlength="7" aria-label="下注金額" title="可直接輸入下注金額">
         <button class="step" id="betPlus">＋</button>
       </div>
       <div class="chips">
@@ -499,7 +503,7 @@ function render(){
   chipsView.textContent = G.chips;
   potView.textContent   = G.pot;
   roundView.textContent = G.round;
-  betView.textContent   = G.bet;
+  if(document.activeElement !== betView) betView.value = G.bet; // 輸入中不覆寫
   deckView.textContent  = G.deck.length;
 }
 function bumpStat(el){ el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
@@ -574,6 +578,7 @@ function setMode(m){
   // 下注隨時可調，只在翻牌動畫與遊戲結束時鎖定（避免開牌途中改注金）
   const betLocked = (m === "reveal" || m === "over");
   betRow.querySelectorAll("button,.chip,.step").forEach(b=>b.disabled = betLocked);
+  betView.readOnly = betLocked;
 }
 
 /* ---- 手動選牌（牌靴剩 < 6 張）：背面排開，玩家自己挑門柱與第三張 ---- */
@@ -794,12 +799,44 @@ function endGame(type){
 
 /* ---- 下注控制 ---- */
 function setBet(v){ G.bet = v; clampBet(); render(); }
-$("betPlus").onclick  = ()=>setBet(G.bet + 10);
-$("betMinus").onclick = ()=>setBet(G.bet - 10);
+
+// 按住 −／＋ 連續增減：先即時一步，停頓後快速重複
+function holdStep(btn, delta){
+  let to, iv;
+  const doStep = ()=>{ if(!btn.disabled) setBet(G.bet + delta); };
+  const start = ()=>{
+    if(btn.disabled) return;
+    if(document.activeElement === betView) betView.blur(); // 先提交手動輸入
+    doStep();
+    to = setTimeout(()=>{ iv = setInterval(doStep, 60); }, 380);
+  };
+  const stop = ()=>{ clearTimeout(to); clearInterval(iv); };
+  btn.addEventListener("pointerdown", start);
+  ["pointerup","pointerleave","pointercancel"].forEach(ev=>btn.addEventListener(ev, stop));
+  btn.addEventListener("contextmenu", e=>e.preventDefault());
+}
+holdStep($("betPlus"),  10);
+holdStep($("betMinus"), -10);
 $("betAll").onclick   = ()=>setBet(maxBet());
 document.querySelectorAll(".chip[data-add]").forEach(c=>{
   c.onclick = ()=>setBet(G.bet + parseInt(c.dataset.add,10));
 });
+
+// 手動輸入下注金額：只收數字，blur／Enter 提交並夾到 1～上限
+function commitBetInput(){
+  let v = parseInt(String(betView.value).replace(/\D/g, ""), 10);
+  if(isNaN(v) || v < 1) v = 1;
+  G.bet = v; clampBet();
+  betView.value = G.bet;
+  render();
+}
+betView.addEventListener("input", ()=>{
+  const digits = betView.value.replace(/\D/g, "").slice(0, 7);
+  if(betView.value !== digits) betView.value = digits;
+});
+betView.addEventListener("keydown", e=>{ if(e.key === "Enter"){ e.preventDefault(); betView.blur(); } });
+betView.addEventListener("blur", commitBetInput);
+betView.addEventListener("focus", ()=>{ if(!betView.readOnly) betView.select(); });
 
 /* ---- 頂部工具 ---- */
 $("btnRules").onclick  = ()=>$("rulesOverlay").classList.add("show");
