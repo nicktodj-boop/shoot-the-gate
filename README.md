@@ -39,7 +39,8 @@
 
 - 單一檔案 `index.html`：HTML + CSS + 原生 JavaScript，無框架、無外部資源。
 - 規則引擎為純函式（`judgeNormal` / `judgePair`），載入時跑內建斷言自測（結果見瀏覽器 console）。
-- 音效用 WebAudio 即時合成，無音檔；右上角可開關。
+- 音效用 WebAudio 即時合成，無音檔；預設開啟，首次點擊後啟用。
+- 字體：拉丁字（標題、數字、牌面點數）用 Hoefler Text 襯線、中文用 Noto Serif／宋體，純系統字、零外部依賴。
 - 視覺：經典賭場綠氈、金色描邊、撲克質感；發牌／翻牌／勝負光暈動畫純 CSS。
 
 ## 檔案結構

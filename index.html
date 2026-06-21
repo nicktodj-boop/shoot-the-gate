@@ -11,11 +11,13 @@
     --card-bg:#fbf7ee; --ink:#1a1a1a; --red:#c8323b;
     --win:#3fbf6a; --lose:#e2554f; --push:#d9b25a;
     --txt:#f3ecd8;
+    --font-base:"Noto Serif TC","Songti TC","Songti SC",serif;
+    --font-display:"Hoefler Text",Baskerville,"Noto Serif TC","Songti TC",Georgia,serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{
-    font-family:"Noto Serif TC","Songti TC",Georgia,serif;
+    font-family:var(--font-base);
     color:var(--txt);
     background:
       radial-gradient(ellipse 120% 90% at 50% 38%, var(--felt-1) 0%, var(--felt-2) 60%, var(--felt-edge) 100%);
@@ -36,6 +38,7 @@
     display:flex; align-items:center; justify-content:space-between; gap:12px;
   }
   .title{
+    font-family:var(--font-display);
     font-size:30px; letter-spacing:.32em; font-weight:700;
     color:var(--gold-2);
     text-shadow:0 1px 0 rgba(0,0,0,.45), 0 2px 1px rgba(0,0,0,.28), 0 0 22px rgba(217,178,90,.22);
@@ -64,8 +67,8 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
   }
   .stat .label{font-size:12px;letter-spacing:.25em;color:var(--gold-dim)}
-  .stat .value{font-size:26px;font-weight:700;color:var(--gold-2);
-    font-variant-numeric:tabular-nums;line-height:1.25;transition:color .2s}
+  .stat .value{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--gold-2);
+    font-variant-numeric:tabular-nums lining-nums;line-height:1.25;transition:color .2s}
   .stat .value.bump{animation:bump .4s}
   @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 
@@ -119,10 +122,10 @@
     flex-direction:column; justify-content:space-between; padding:8px 10px;
   }
   .face.front.red{color:var(--red)}
-  .corner{font-size:20px;font-weight:700;line-height:1;display:flex;flex-direction:column;align-items:center;width:22px;white-space:nowrap}
+  .corner{font-family:var(--font-display);font-size:20px;font-weight:700;line-height:1;display:flex;flex-direction:column;align-items:center;width:22px;white-space:nowrap;font-variant-numeric:lining-nums}
   .corner.br{align-self:flex-end;transform:rotate(180deg)}
   .corner .s{font-size:17px}
-  .pip{font-size:46px;text-align:center;align-self:center}
+  .pip{font-family:var(--font-display);font-size:46px;text-align:center;align-self:center;font-variant-numeric:lining-nums}
   /* 門柱直接正面（不翻） */
   .card.static .inner{transition:none;transform:rotateY(180deg)}
 
@@ -183,8 +186,8 @@
     font-family:inherit;transition:.15s;
   }
   .step:hover{background:rgba(217,178,90,.18)}
-  .bet-val{min-width:78px;text-align:center;font-size:24px;font-weight:700;color:var(--gold-2);
-    font-variant-numeric:tabular-nums}
+  .bet-val{font-family:var(--font-display);min-width:78px;text-align:center;font-size:24px;font-weight:700;color:var(--gold-2);
+    font-variant-numeric:tabular-nums lining-nums}
   .chips{display:flex;gap:6px}
   .chip{
     border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;font-family:inherit;
@@ -282,7 +285,6 @@
   <header>
     <div class="title">射龍門<small>SHOOT THE GATE</small></div>
     <div class="top-tools">
-      <button class="icon-btn" id="btnSound">🔊 音效</button>
       <button class="icon-btn" id="btnRules">規則</button>
       <button class="icon-btn" id="btnReset">重新開始</button>
     </div>
@@ -804,11 +806,10 @@ $("btnRules").onclick  = ()=>$("rulesOverlay").classList.add("show");
 $("rulesClose").onclick= ()=>$("rulesOverlay").classList.remove("show");
 $("btnReset").onclick  = ()=>start();
 $("endRestart").onclick= ()=>{ $("endOverlay").classList.remove("show"); start(); };
-$("btnSound").onclick  = ()=>{
-  audioOn = !audioOn;
-  $("btnSound").textContent = audioOn ? "🔊 音效" : "🔇 靜音";
-  if(audioOn) ac();
-};
+
+// 音效預設開啟；首次互動時喚醒音訊（繞過瀏覽器自動播放限制）
+["pointerdown","keydown"].forEach(ev=>
+  document.addEventListener(ev, ()=>{ const c = ac(); if(c && c.state === "suspended") c.resume(); }, {once:true}));
 
 /* ---- 開局 ---- */
 function start(){
